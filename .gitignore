@@ -1,0 +1,19 @@
+# Binaries
+/blog-ssg
+*.exe
+*.test
+*.prof
+
+# Build output
+/build/
+/build-test/
+/dist/
+
+# Logs
+*.log
+/server.log
+
+# OS / Editor artifacts
+.DS_Store
+*.swp
+*~
