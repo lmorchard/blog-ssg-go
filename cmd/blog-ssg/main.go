@@ -164,10 +164,10 @@ func runWatch(args []string) {
 		},
 	}
 
-	startWatchLoop(cfg, false)
+	startWatchLoop(cfg, false, nil)
 }
 
-func startWatchLoop(cfg build.Config, runSearch bool) *watch.Watcher {
+func startWatchLoop(cfg build.Config, runSearch bool, hub *watch.LiveReloadHub) *watch.Watcher {
 	// 1. Initial build
 	buildSite(cfg, runSearch)
 
@@ -186,6 +186,9 @@ func startWatchLoop(cfg build.Config, runSearch bool) *watch.Watcher {
 			fmt.Printf("  • %s\n", filepath.Base(f))
 		}
 		buildSite(cfg, false)
+		if hub != nil {
+			hub.Broadcast()
+		}
 		fmt.Println("[watch] Ready.")
 	})
 
@@ -238,11 +241,15 @@ func runServe(args []string) {
 		},
 	}
 
+	var handler http.Handler = http.FileServer(http.Dir(*buildDir))
+
 	if *doWatch {
-		w := startWatchLoop(cfg, false)
+		hub := watch.NewLiveReloadHub()
+		w := startWatchLoop(cfg, false, hub)
 		if w != nil {
 			defer w.Close()
 		}
+		handler = hub.InjectLiveReload(*buildDir, handler)
 	} else {
 		if _, err := os.Stat(*buildDir); os.IsNotExist(err) {
 			fmt.Printf("Build directory not found, running initial build...\n")
@@ -253,7 +260,6 @@ func runServe(args []string) {
 	addr := ":" + *port
 	fmt.Printf("\nServing %s on http://localhost%s (Ctrl+C to stop)\n", *buildDir, addr)
 
-	handler := http.FileServer(http.Dir(*buildDir))
 	if err := http.ListenAndServe(addr, handler); err != nil {
 		fmt.Fprintf(os.Stderr, "Server failed: %v\n", err)
 		os.Exit(1)
