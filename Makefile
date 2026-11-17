@@ -78,8 +78,8 @@ new: build-bin
 	fi
 	./$(BIN) new -posts $(POSTS_DIR) $(if $(TAGS),-tags "$(TAGS)") "$(TITLE)"
 
-# Compare Go build output against Node build output
-compare:
+# Run automated parity verification against Node build output
+verify-parity compare:
 	go run ./cmd/compare-builds -node $(CONTENT_DIR)/build -go $(BUILD_DIR)
 
 # Find empty placeholder draft posts (dry run)

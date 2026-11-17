@@ -226,6 +226,104 @@ func main() {
 	fmt.Printf("8. Monospace Blocks:    %d / %d correctly placed for .content-grid > pre (trapped: %d)\n",
 		codeBlocksCorrectDirectChild, codeBlocksChecked, codeBlocksTrappedInWrapper)
 	fmt.Printf("=======================================================\n")
+
+	// 3. Link and Asset Integrity Verification
+	parityRegressions := checkBrokenLinks(*goBuild, *nodeBuild, goFiles)
+	if parityRegressions > 0 {
+		fmt.Fprintf(os.Stderr, "\n❌ Parity verification failed: %d link/asset regressions found between Node and Go\n", parityRegressions)
+		os.Exit(1)
+	}
+	fmt.Printf("\n✓ Parity verification passed: 100%% asset and link parity achieved!\n")
+}
+
+func checkBrokenLinks(buildDir, nodeDir string, files map[string]bool) int {
+	fmt.Printf("\nRunning Internal Link & Asset Integrity Check (%d pages in %s)...\n", len(files), buildDir)
+	parityRegressions := 0
+	legacyBrokenCount := 0
+
+	for rel := range files {
+		doc, err := readDoc(filepath.Join(buildDir, rel))
+		if err != nil {
+			continue
+		}
+
+		currDir := filepath.Dir(filepath.Join(buildDir, rel))
+		nodeCurrDir := filepath.Dir(filepath.Join(nodeDir, rel))
+
+		checkAttr := func(sel string, attr string) {
+			doc.Find(sel).Each(func(i int, s *goquery.Selection) {
+				val, exists := s.Attr(attr)
+				if !exists || val == "" {
+					return
+				}
+				cleanVal := val
+				if idx := strings.IndexAny(cleanVal, "?#"); idx != -1 {
+					cleanVal = cleanVal[:idx]
+				}
+				cleanVal = strings.TrimSpace(cleanVal)
+				if cleanVal == "" {
+					return
+				}
+
+				if strings.HasPrefix(cleanVal, "//") || strings.HasPrefix(cleanVal, "http://") ||
+					strings.HasPrefix(cleanVal, "https://") || strings.HasPrefix(cleanVal, "mailto:") ||
+					strings.HasPrefix(cleanVal, "javascript:") || strings.HasPrefix(cleanVal, "data:") ||
+					strings.HasPrefix(cleanVal, "aim:") || strings.HasPrefix(cleanVal, "irc:") ||
+					strings.HasPrefix(cleanVal, "xmpp:") || strings.HasPrefix(cleanVal, "magnet:") {
+					return
+				}
+
+				var goTargetPath string
+				var nodeTargetPath string
+				if strings.HasPrefix(cleanVal, "/") {
+					goTargetPath = filepath.Join(buildDir, cleanVal)
+					nodeTargetPath = filepath.Join(nodeDir, cleanVal)
+				} else {
+					goTargetPath = filepath.Join(currDir, cleanVal)
+					nodeTargetPath = filepath.Join(nodeCurrDir, cleanVal)
+				}
+
+				resolvePath := func(p string) bool {
+					if info, err := os.Stat(p); err == nil {
+						if info.IsDir() {
+							_, err2 := os.Stat(filepath.Join(p, "index.html"))
+							return err2 == nil
+						}
+						return true
+					}
+					_, err := os.Stat(p + ".html")
+					return err == nil
+				}
+
+				goExists := resolvePath(goTargetPath)
+				if !goExists {
+					nodeExists := resolvePath(nodeTargetPath)
+					if nodeExists {
+						parityRegressions++
+						if parityRegressions <= 10 {
+							fmt.Printf("  ❌ Parity regression in %s: %s (resolves in Node but missing in Go: %s)\n", rel, val, goTargetPath)
+						}
+					} else {
+						legacyBrokenCount++
+					}
+				}
+			})
+		}
+
+		checkAttr("a", "href")
+		checkAttr("img", "src")
+		checkAttr("link[rel='stylesheet']", "href")
+		checkAttr("script[src]", "src")
+	}
+
+	fmt.Printf("✓ Legacy dead links (broken in Node build too): %d\n", legacyBrokenCount)
+	if parityRegressions == 0 {
+		fmt.Println("✓ Zero parity regressions! Every valid link and asset in Node resolves in Go.")
+	} else if parityRegressions > 10 {
+		fmt.Printf("  ... and %d more parity regression(s)\n", parityRegressions-10)
+	}
+
+	return parityRegressions
 }
 
 func collectHTMLFiles(root string) map[string]bool {

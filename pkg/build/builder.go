@@ -239,6 +239,18 @@ func (b *Builder) buildSinglePost(p *post.Post) error {
 	// 4. Directory post assets copying
 	if p.IsDir && p.ParentPath != "" {
 		b.copyDirAssets(p.ParentPath, postDir)
+	} else if len(p.Attachments) > 0 && p.ParentPath != "" {
+		for _, att := range p.Attachments {
+			srcPath := filepath.Join(p.ParentPath, att)
+			if _, err := os.Stat(srcPath); os.IsNotExist(err) {
+				srcPath = filepath.Join(p.ParentPath, "attachments", filepath.Base(att))
+			}
+			if _, err := os.Stat(srcPath); err == nil {
+				destPath := filepath.Join(postDir, att)
+				_ = os.MkdirAll(filepath.Dir(destPath), 0755)
+				copyFile(srcPath, destPath)
+			}
+		}
 	}
 
 	return nil
