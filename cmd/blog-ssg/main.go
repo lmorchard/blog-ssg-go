@@ -87,19 +87,7 @@ func runBuild(args []string) {
 		ShowDrafts:    *showDrafts,
 		Clean:         *clean,
 		Concurrency:   *concurrency,
-		Site: template.SiteConfig{
-			Title:           "blog.lmorchard.com",
-			Subtitle:        "It's all spinning wheels & self-doubt until the first pot of coffee.",
-			BaseURL:         *baseURL,
-			AbsoluteBaseURL: *absBaseURL,
-			Domain:          "blog.lmorchard.com",
-			Avatar:          "https://www.gravatar.com/avatar/b45c48fc9e05922e2f368a9d7d7d8de1.jpg?s=128",
-			Author: template.AuthorConfig{
-				FullName: "Les Orchard",
-				Email:    "me@lmorchard.com",
-				URL:      "https://lmorchard.com",
-			},
-		},
+		Site:          defaultSiteConfig(*baseURL, *absBaseURL),
 	}
 
 	buildSite(cfg, *search)
@@ -149,19 +137,7 @@ func runWatch(args []string) {
 		UploadsPath:   *uploadsDir,
 		TemplatesPath: *templatesDir,
 		ShowDrafts:    *showDrafts,
-		Site: template.SiteConfig{
-			Title:           "blog.lmorchard.com",
-			Subtitle:        "It's all spinning wheels & self-doubt until the first pot of coffee.",
-			BaseURL:         *baseURL,
-			AbsoluteBaseURL: *absBaseURL,
-			Domain:          "blog.lmorchard.com",
-			Avatar:          "https://www.gravatar.com/avatar/b45c48fc9e05922e2f368a9d7d7d8de1.jpg?s=128",
-			Author: template.AuthorConfig{
-				FullName: "Les Orchard",
-				Email:    "me@lmorchard.com",
-				URL:      "https://lmorchard.com",
-			},
-		},
+		Site:          defaultSiteConfig(*baseURL, *absBaseURL),
 	}
 
 	startWatchLoop(cfg, false, nil)
@@ -226,19 +202,7 @@ func runServe(args []string) {
 		UploadsPath:   *uploadsDir,
 		TemplatesPath: *templatesDir,
 		ShowDrafts:    *showDrafts,
-		Site: template.SiteConfig{
-			Title:           "blog.lmorchard.com",
-			Subtitle:        "It's all spinning wheels & self-doubt until the first pot of coffee.",
-			BaseURL:         *baseURL,
-			AbsoluteBaseURL: *absBaseURL,
-			Domain:          "blog.lmorchard.com",
-			Avatar:          "https://www.gravatar.com/avatar/b45c48fc9e05922e2f368a9d7d7d8de1.jpg?s=128",
-			Author: template.AuthorConfig{
-				FullName: "Les Orchard",
-				Email:    "me@lmorchard.com",
-				URL:      "https://lmorchard.com",
-			},
-		},
+		Site:          defaultSiteConfig(*baseURL, *absBaseURL),
 	}
 
 	var handler http.Handler = http.FileServer(http.Dir(*buildDir))
@@ -485,5 +449,31 @@ func runCleanEmptyDrafts(args []string) {
 		fmt.Printf("\nFound %d empty draft(s). Run with -delete or -force to remove them.\n", len(results))
 	} else {
 		fmt.Printf("\nSuccessfully removed %d empty draft(s).\n", len(results))
+	}
+}
+
+func defaultSiteConfig(baseURL, absBaseURL string) template.SiteConfig {
+	return template.SiteConfig{
+		Title:           "blog.lmorchard.com",
+		Subtitle:        "It's all spinning wheels & self-doubt until the first pot of coffee.",
+		BaseURL:         baseURL,
+		AbsoluteBaseURL: absBaseURL,
+		Domain:          "blog.lmorchard.com",
+		Avatar:          "https://www.gravatar.com/avatar/b45c48fc9e05922e2f368a9d7d7d8de1.jpg?s=128",
+		Author: template.AuthorConfig{
+			FullName:    "Les Orchard",
+			Email:       "me@lmorchard.com",
+			URL:         "https://lmorchard.com",
+			JobTitle:    "Software developer",
+			Description: "he / him; old adhd cat dad; tinkerer; serial enthusiast",
+			SameAs: []string{
+				"https://lmorchard.com",
+				"https://masto.hackers.town/@lmorchard",
+				"https://bsky.app/profile/lmorchard.com",
+				"https://github.com/lmorchard",
+				"https://twitch.tv/lmorchard",
+				"https://www.youtube.com/@LesOrchard",
+			},
+		},
 	}
 }

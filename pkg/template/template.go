@@ -31,9 +31,12 @@ type SiteConfig struct {
 }
 
 type AuthorConfig struct {
-	FullName string
-	Email    string
-	URL      string
+	FullName    string
+	Email       string
+	URL         string
+	JobTitle    string
+	Description string
+	SameAs      []string
 }
 
 type NavPage struct {
@@ -51,8 +54,9 @@ type PageMeta struct {
 }
 
 type CommonData struct {
-	Site SiteConfig
-	Page PageMeta
+	Site   SiteConfig
+	Page   PageMeta
+	JSONLD template.HTML
 }
 
 type PostViewData struct {

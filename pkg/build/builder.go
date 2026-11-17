@@ -213,6 +213,7 @@ func (b *Builder) buildSinglePost(p *post.Post) error {
 				Title: p.Title,
 				Path:  p.Path,
 			},
+			JSONLD: template.BuildJSONLD(b.cfg.Site, p),
 		},
 		Post: p,
 	}
@@ -300,6 +301,7 @@ func (b *Builder) buildPage(page Page) error {
 				Path:  page.Path,
 				HTML:  page.HTML,
 			},
+			JSONLD: template.BuildJSONLD(b.cfg.Site, nil),
 		},
 	}
 
@@ -326,6 +328,7 @@ func (b *Builder) buildRoot(posts []*post.Post) error {
 				Title: "Home",
 				Path:  "",
 			},
+			JSONLD: template.BuildJSONLD(b.cfg.Site, nil),
 		},
 		Posts: recentPosts,
 	}
@@ -424,6 +427,7 @@ func (b *Builder) buildDateIndexes(posts []*post.Post) error {
 						IndexLabel: t.label,
 						Path:       t.path,
 					},
+					JSONLD: template.BuildJSONLD(b.cfg.Site, nil),
 				},
 				Posts: t.posts,
 			}
@@ -479,6 +483,7 @@ func (b *Builder) buildTagIndexes(posts []*post.Post) (int, error) {
 						FeedURL:   fmt.Sprintf("%s/tag/%s/index.rss", b.cfg.Site.BaseURL, t.tag),
 						FeedTitle: fmt.Sprintf("Tag: %s Feed", t.tag),
 					},
+					JSONLD: template.BuildJSONLD(b.cfg.Site, nil),
 				},
 				Tag:   t.tag,
 				Posts: t.posts,
@@ -574,6 +579,7 @@ func (b *Builder) buildArchives(posts []*post.Post) error {
 				Title: "Archives",
 				Path:  "archives.html",
 			},
+			JSONLD: template.BuildJSONLD(b.cfg.Site, nil),
 		},
 		ArchiveData: template.ArchiveData{
 			TopTags: topTags,

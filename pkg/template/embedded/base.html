@@ -28,6 +28,8 @@
     <link href="{{.Page.FeedURL}}" rel="alternate" title="{{.Page.FeedTitle}}" type="application/rss+xml" />
     {{end}}
 
+    {{if .JSONLD}}{{.JSONLD}}{{end}}
+
     {{block "head" .}}{{end}}
   </head>
   <body>
