@@ -8,7 +8,7 @@
     <div class="tag-cloud">
       {{range .ArchiveData.TopTags}}
       <a href="{{$.Site.BaseURL}}/tag/{{.Name}}/" class="tag-pill">
-        <span>#{{.Name}}</span>
+        <span class="name">{{.Name}}</span>
         <span class="count">({{.Count}})</span>
       </a>
       {{end}}

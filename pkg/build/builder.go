@@ -501,23 +501,7 @@ func (b *Builder) buildTagIndexes(posts []*post.Post) (int, error) {
 }
 
 func (b *Builder) buildArchives(posts []*post.Post) error {
-	// 1. all.html
-	var allBuf bytes.Buffer
-	allData := template.IndexViewData{
-		CommonData: template.CommonData{
-			Site: b.cfg.Site,
-			Page: template.PageMeta{
-				Title: "All Posts",
-				Path:  "all.html",
-			},
-		},
-		Posts: posts,
-	}
-	if err := b.templateMgr.RenderIndexRecent(&allBuf, allData); err == nil {
-		_ = os.WriteFile(filepath.Join(b.cfg.BuildPath, "all.html"), allBuf.Bytes(), 0644)
-	}
-
-	// 2. archives.html
+	// archives.html
 	monthNames := map[string]string{
 		"01": "January", "02": "February", "03": "March", "04": "April",
 		"05": "May", "06": "June", "07": "July", "08": "August",
