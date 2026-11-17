@@ -210,6 +210,7 @@ func runServe(args []string) {
 	baseURL := fs.String("baseurl", "", "Site base URL path prefix (e.g. /blog)")
 	absBaseURL := fs.String("abs-baseurl", "https://blog.lmorchard.com", "Site absolute base URL")
 	port := fs.String("port", "9980", "Port to listen on")
+	showDrafts := fs.Bool("drafts", true, "Include draft posts")
 	doWatch := fs.Bool("watch", false, "Watch for changes and rebuild automatically")
 	fs.BoolVar(doWatch, "w", false, "Alias for -watch")
 	_ = fs.Parse(args)
@@ -221,7 +222,7 @@ func runServe(args []string) {
 		PublicPath:    *publicDir,
 		UploadsPath:   *uploadsDir,
 		TemplatesPath: *templatesDir,
-		ShowDrafts:    true,
+		ShowDrafts:    *showDrafts,
 		Site: template.SiteConfig{
 			Title:           "blog.lmorchard.com",
 			Subtitle:        "It's all spinning wheels & self-doubt until the first pot of coffee.",
