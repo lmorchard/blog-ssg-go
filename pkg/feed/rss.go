@@ -74,10 +74,21 @@ func GenerateRSS(site template.SiteConfig, posts []*post.Post, tag string, maxIt
 	channelLink := site.AbsoluteBaseURL
 	feedURL := fmt.Sprintf("%s/index.rss", site.AbsoluteBaseURL)
 
+	if !fullText && tag == "" {
+		channelTitle = fmt.Sprintf("%s (excerpts)", site.Title)
+		feedURL = fmt.Sprintf("%s/index-excerpts.rss", site.AbsoluteBaseURL)
+	}
+
 	if tag != "" {
-		channelTitle = fmt.Sprintf("Tag: %s - %s", tag, site.Title)
-		channelLink = fmt.Sprintf("%s/tag/%s/", site.AbsoluteBaseURL, tag)
-		feedURL = fmt.Sprintf("%s/tag/%s/index.rss", site.AbsoluteBaseURL, tag)
+		if fullText {
+			channelTitle = fmt.Sprintf("Tag: %s - %s", tag, site.Title)
+			channelLink = fmt.Sprintf("%s/tag/%s/", site.AbsoluteBaseURL, tag)
+			feedURL = fmt.Sprintf("%s/tag/%s/index.rss", site.AbsoluteBaseURL, tag)
+		} else {
+			channelTitle = fmt.Sprintf("Tag: %s - %s (excerpts)", tag, site.Title)
+			channelLink = fmt.Sprintf("%s/tag/%s/", site.AbsoluteBaseURL, tag)
+			feedURL = fmt.Sprintf("%s/tag/%s/index-excerpts.rss", site.AbsoluteBaseURL, tag)
+		}
 	}
 
 	if maxItems <= 0 || maxItems > len(posts) {

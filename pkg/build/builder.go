@@ -488,10 +488,14 @@ func (b *Builder) buildTagIndexes(posts []*post.Post) (int, error) {
 				_ = os.WriteFile(filepath.Join(tagDir, "index.html"), buf.Bytes(), 0644)
 			}
 
-			// Tag RSS feed
-			tagRSS, err := feed.GenerateRSS(b.cfg.Site, t.posts, t.tag, 15, false)
+			// Tag RSS feeds (full text and excerpts)
+			tagRSS, err := feed.GenerateRSS(b.cfg.Site, t.posts, t.tag, 15, true)
 			if err == nil {
 				_ = os.WriteFile(filepath.Join(tagDir, "index.rss"), tagRSS, 0644)
+			}
+			tagExcerptsRSS, err := feed.GenerateRSS(b.cfg.Site, t.posts, t.tag, 15, false)
+			if err == nil {
+				_ = os.WriteFile(filepath.Join(tagDir, "index-excerpts.rss"), tagExcerptsRSS, 0644)
 			}
 		}(task)
 	}
