@@ -519,9 +519,9 @@ func (b *Builder) buildArchives(posts []*post.Post) error {
 
 	// 2. archives.html
 	monthNames := map[string]string{
-		"01": "jan", "02": "feb", "03": "mar", "04": "apr",
-		"05": "may", "06": "jun", "07": "jul", "08": "aug",
-		"09": "sep", "10": "oct", "11": "nov", "12": "dec",
+		"01": "January", "02": "February", "03": "March", "04": "April",
+		"05": "May", "06": "June", "07": "July", "08": "August",
+		"09": "September", "10": "October", "11": "November", "12": "December",
 	}
 
 	tagCounts := make(map[string]int)
@@ -560,17 +560,21 @@ func (b *Builder) buildArchives(posts []*post.Post) error {
 	for _, y := range sortedYears {
 		monthsMap := dateCounts[y]
 		var months []template.MonthArchive
+		totalYearPosts := 0
 		for m := 1; m <= 12; m++ {
 			mKey := fmt.Sprintf("%02d", m)
+			cnt := monthsMap[mKey]
+			totalYearPosts += cnt
 			months = append(months, template.MonthArchive{
 				Month: mKey,
 				Name:  monthNames[mKey],
-				Count: monthsMap[mKey],
+				Count: cnt,
 			})
 		}
 		years = append(years, template.YearArchive{
-			Year:   y,
-			Months: months,
+			Year:       y,
+			TotalPosts: totalYearPosts,
+			Months:     months,
 		})
 	}
 
@@ -600,7 +604,7 @@ func (b *Builder) copyStaticAssets() {
 		copyDirRecursive(b.cfg.PublicPath, b.cfg.BuildPath)
 	}
 	if b.cfg.UploadsPath != "" {
-		copyDirRecursive(b.cfg.UploadsPath, filepath.Join(b.cfg.BuildPath, "uploads"))
+		copyDirRecursive(b.cfg.UploadsPath, b.cfg.BuildPath)
 	}
 }
 

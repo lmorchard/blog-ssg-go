@@ -2,46 +2,40 @@
 <section class="content-grid">
   <section class="archive">
     <h2>Archives</h2>
-    <p>Feel free to peruse this <a href="{{.Site.BaseURL}}/all.html">huge list of all my posts</a>.</p>
+    <p>Feel free to peruse the <a href="{{.Site.BaseURL}}/all.html">complete chronological index of all posts</a>.</p>
 
-    <h3>Tags</h3>
-    <p>Here are some of the topics I've written about:</p>
-    <ul class="tags">
+    <h3>Top Topics</h3>
+    <div class="tag-cloud">
       {{range .ArchiveData.TopTags}}
-      <li class="tag">
-        <a href="{{$.Site.BaseURL}}/tag/{{.Name}}/">
-          <i class="fa fa-tag"></i>
-          <span class="name">{{.Name}}</span>
-          <span class="count">({{.Count}})</span>
-        </a>
-      </li>
+      <a href="{{$.Site.BaseURL}}/tag/{{.Name}}/" class="tag-pill">
+        <span>#{{.Name}}</span>
+        <span class="count">({{.Count}})</span>
+      </a>
       {{end}}
-    </ul>
+    </div>
 
-    <h3>Time</h3>
-    <p>Here's how my writing here stacks up over time:</p>
-    <ul class="years">
+    <h3>Timeline Archive</h3>
+    <div class="timeline-grid">
       {{range .ArchiveData.Years}}
       {{$year := .Year}}
-      <li class="year">
-        <a href="{{$.Site.BaseURL}}/{{$year}}/">
-          <span class="year-label">{{$year}}</span>
-        </a>
-        <ul class="months">
+      <section class="year-card">
+        <h3>
+          <a href="{{$.Site.BaseURL}}/{{$year}}/">{{$year}}</a>
+          <small>{{.TotalPosts}} posts</small>
+        </h3>
+        <ul class="month-list">
           {{range .Months}}
           {{if .Count}}
-          <li class="month">
-            <a class="month-container" href="{{$.Site.BaseURL}}/{{$year}}/{{.Month}}/">
-              <span class="month-label">{{.Name}}</span>
-              <span class="month-count">({{.Count}})</span>
-            </a>
+          <li>
+            <a href="{{$.Site.BaseURL}}/{{$year}}/{{.Month}}/">{{.Name}}</a>
+            <span class="month-count">({{.Count}})</span>
           </li>
           {{end}}
           {{end}}
         </ul>
-      </li>
+      </section>
       {{end}}
-    </ul>
+    </div>
   </section>
 </section>
 {{end}}

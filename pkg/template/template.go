@@ -96,8 +96,9 @@ type TagCount struct {
 }
 
 type YearArchive struct {
-	Year   string
-	Months []MonthArchive
+	Year       string
+	TotalPosts int
+	Months     []MonthArchive
 }
 
 type MonthArchive struct {
