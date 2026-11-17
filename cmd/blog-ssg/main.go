@@ -28,6 +28,8 @@ func main() {
 	switch command {
 	case "build":
 		runBuild(os.Args[2:])
+	case "new":
+		runNew(os.Args[2:])
 	case "eject":
 		runEject(os.Args[2:])
 	case "serve":
@@ -53,6 +55,7 @@ func printUsage() {
 	fmt.Println("Usage: blog-ssg <command> [options]")
 	fmt.Println("\nCommands:")
 	fmt.Println("  build               Build posts, pages, indexes, feeds, and assets")
+	fmt.Println("  new                 Scaffold a new blog post with frontmatter and timestamp")
 	fmt.Println("  watch               Watch directories and rebuild automatically on change")
 	fmt.Println("  serve               Start a local static web server to preview the build (supports -w)")
 	fmt.Println("  eject               Extract embedded default templates to disk for customization")
@@ -114,6 +117,50 @@ func buildSite(cfg build.Config, search bool) {
 	if search {
 		runPagefind(cfg.BuildPath)
 	}
+}
+
+func runNew(args []string) {
+	fs := flag.NewFlagSet("new", flag.ExitOnError)
+	postsDir := fs.String("posts", "../../blog.lmorchard.com/content/posts", "Path to posts directory")
+	slug := fs.String("slug", "", "Custom URL slug (optional, default auto-generated from title)")
+	tagsStr := fs.String("tags", "", "Comma-separated list of tags")
+	draft := fs.Bool("draft", true, "Mark post as draft")
+	bundle := fs.Bool("bundle", true, "Create post as directory bundle with index.md")
+	_ = fs.Parse(args)
+
+	title := strings.TrimSpace(strings.Join(fs.Args(), " "))
+	if title == "" {
+		fmt.Fprintf(os.Stderr, "Error: post title is required.\n\nUsage: blog-ssg new [options] <title>\n\nFlags:\n")
+		fs.PrintDefaults()
+		os.Exit(1)
+	}
+
+	var tags []string
+	if *tagsStr != "" {
+		for _, t := range strings.Split(*tagsStr, ",") {
+			t = strings.TrimSpace(t)
+			if t != "" {
+				tags = append(tags, t)
+			}
+		}
+	}
+
+	opts := post.NewPostOptions{
+		PostsDir: *postsDir,
+		Title:    title,
+		Slug:     *slug,
+		Tags:     tags,
+		Draft:    *draft,
+		Bundle:   *bundle,
+	}
+
+	path, err := post.CreateNewPost(opts)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to create post: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("✓ Created new post: %s\n", path)
 }
 
 func runWatch(args []string) {

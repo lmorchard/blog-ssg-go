@@ -70,6 +70,14 @@ search:
 		exit 1; \
 	fi
 
+# Scaffold a new post: make new TITLE="My Post Title" [TAGS="tag1,tag2"]
+new: build-bin
+	@if [ -z "$(TITLE)" ]; then \
+		echo "Usage: make new TITLE=\"Your Post Title\" [TAGS=\"tag1,tag2\"]"; \
+		exit 1; \
+	fi
+	./$(BIN) new -posts $(POSTS_DIR) $(if $(TAGS),-tags "$(TAGS)") "$(TITLE)"
+
 # Compare Go build output against Node build output
 compare:
 	go run ./cmd/compare-builds -node $(CONTENT_DIR)/build -go $(BUILD_DIR)
